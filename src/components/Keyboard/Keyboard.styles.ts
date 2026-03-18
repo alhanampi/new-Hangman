@@ -4,6 +4,7 @@ export const KeyboardContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.2em;
+  width: 100%;
 `;
 
 export const KeyboardRow = styled.div`
@@ -13,7 +14,7 @@ export const KeyboardRow = styled.div`
 
 export const KeyWrapper = styled.div<{ $disabled: boolean }>`
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
-  margin: 0.3rem;
+  margin: 2px;
   display: inline-block;
   line-height: 0;
 `;

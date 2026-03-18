@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import words from './assets/randomWords.json';
 import Drawing from './components/Drawing/Drawing';
 import WordToGuess from './components/WordToGuess/WordToGuess';
@@ -13,6 +13,7 @@ function App() {
   });
   const [usedLetters, setUsedLetters] = useState<string[]>([]);
 
+  const inputRef = useRef<HTMLInputElement>(null);
   const incorrectLetters = usedLetters.filter((letter) => !wordsArray.includes(letter));
   //win/lose cases:
   const isLoser = incorrectLetters.length >= 6;
@@ -32,6 +33,10 @@ function App() {
     setUsedLetters([]);
     setWordsArray(words[Math.floor(Math.random() * words.length)]);
   };
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [usedLetters]);
 
   useEffect(() => {
     const keyHandler = (e: KeyboardEvent) => {
@@ -61,6 +66,18 @@ function App() {
             </>
           ) : null}
         </GameOver>
+        {/* Hidden input captures mobile virtual keyboard input */}
+        <input
+          ref={inputRef}
+          aria-label="Type a letter"
+          style={{ position: 'absolute', opacity: 0, width: 1, height: 1, pointerEvents: 'none' }}
+          onInput={(e) => {
+            const val = e.currentTarget.value.toLowerCase();
+            const last = val[val.length - 1];
+            if (last && /^[a-z]$/.test(last) && !disabled) addGuessedLetter(last);
+            e.currentTarget.value = '';
+          }}
+        />
         {disabled && <RoughButton label="Play again" onClick={restart} />}
         <Drawing numberOfGuesses={incorrectLetters.length} />
         <WordToGuess guessedLetters={usedLetters} wordToGuess={wordsArray} reveal={false} />

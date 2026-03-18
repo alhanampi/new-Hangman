@@ -18,25 +18,31 @@ export const AppContainer = styled.div`
   max-width: 800px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
   margin: 0 auto;
   align-items: center;
-  padding: 1rem;
+  padding: 0.75rem;
   font-family: 'Give You Glory', cursive;
+
+  @media (min-width: 480px) {
+    gap: 1rem;
+    padding: 1rem;
+  }
 `;
 
 export const Title = styled.h1`
-  font-size: 3rem;
+  font-size: clamp(1.3rem, 7vw, 3rem);
 `;
 
 export const GameOver = styled.div`
-  font-size: 1.5rem;
+  font-size: clamp(0.85rem, 4vw, 1.5rem);
   font-weight: bold;
   font-family: 'Indie Flower', cursive;
+  text-align: center;
 `;
 
 export const LostWord = styled.span`
-  font-size: 3rem;
+  font-size: clamp(1.1rem, 5.5vw, 3rem);
 `;
 
 export const RestartButton = styled.button`

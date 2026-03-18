@@ -1,21 +1,26 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import rough from 'roughjs';
 import { KeyboardContainer, KeyboardRow, KeyWrapper, KeySvg } from './Keyboard.styles';
 
 const rows = ['qwertyuiop'.split(''), 'asdfghjkl'.split(''), 'zxcvbnm'.split('')];
 
-const W = 60,
-  H = 60;
+function calcKeySize(containerWidth: number) {
+  // 10 keys in the widest row; 4px total margin per key (2px each side)
+  return Math.min(60, Math.max(20, Math.floor(containerWidth / 10) - 4));
+}
 
 type RoughKeyProps = {
   char: string;
   isActive: boolean;
   isInactive: boolean;
   disabled: boolean;
+  keySize: number;
   onClick: () => void;
 };
 
-const RoughKey = ({ char, isActive, isInactive, disabled, onClick }: RoughKeyProps) => {
+const RoughKey = ({ char, isActive, isInactive, disabled, keySize, onClick }: RoughKeyProps) => {
+  const W = keySize,
+    H = keySize;
   const svgRef = useRef<SVGSVGElement>(null);
   const animRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const hoveredRef = useRef(false);
@@ -49,10 +54,11 @@ const RoughKey = ({ char, isActive, isInactive, disabled, onClick }: RoughKeyPro
 
     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     text.setAttribute('x', String(W / 2));
-    text.setAttribute('y', String(H / 2 + 8));
+    text.setAttribute('y', String(H / 2));
     text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('dominant-baseline', 'central');
     text.setAttribute('fill', isInactive ? 'rgba(255,255,255,0.35)' : 'white');
-    text.setAttribute('font-size', '22');
+    text.setAttribute('font-size', String(Math.max(13, Math.round(W * 0.38))));
     text.setAttribute('font-weight', 'bold');
     text.setAttribute('font-family', "'Indie Flower', cursive");
     text.textContent = char.toUpperCase();
@@ -61,7 +67,7 @@ const RoughKey = ({ char, isActive, isInactive, disabled, onClick }: RoughKeyPro
 
   useEffect(() => {
     drawRef.current(baseSeed);
-  }, [char, isActive, isInactive, disabled, baseSeed]);
+  }, [char, isActive, isInactive, disabled, baseSeed, keySize]);
 
   const handleMouseEnter = () => {
     if (disabled || hoveredRef.current) return;
@@ -108,8 +114,21 @@ const Keyboard = ({
   inactiveLetters,
   addGuessedLetter,
 }: KeyboardProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [keySize, setKeySize] = useState(() => calcKeySize(window.innerWidth));
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setKeySize(calcKeySize(entry.contentRect.width));
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <KeyboardContainer>
+    <KeyboardContainer ref={containerRef}>
       {rows.map((row, i) => (
         //map the amount of letters in the word
         <KeyboardRow key={i}>
@@ -122,6 +141,7 @@ const Keyboard = ({
               disabled={
                 !!(disabled || activeLetters.includes(char) || inactiveLetters.includes(char))
               }
+              keySize={keySize}
               onClick={() => addGuessedLetter(char)}
             />
           ))}

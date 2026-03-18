@@ -69,7 +69,13 @@ const Drawing = ({ numberOfGuesses }: DrawingProps) => {
     }
   }, [numberOfGuesses]);
 
-  return <svg ref={svgRef} width="300" height="400" />;
+  return (
+    <svg
+      ref={svgRef}
+      viewBox="0 0 300 400"
+      style={{ width: 'min(300px, 80vw)', height: 'auto' }}
+    />
+  );
 };
 
 export default Drawing;
